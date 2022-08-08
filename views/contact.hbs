@@ -1,5 +1,9 @@
 <h2>Contact me</h2>
-<form action='/contact/send-message' method='POST'>
+<form
+  action='/contact/send-message'
+  method='POST'
+  enctype='multipart/form-data'
+>
   <label>
     Your name:
     <input type='text' name='author' />
@@ -16,13 +20,23 @@
     Message:
     <textarea name='message'></textarea>
   </label>
+  <label>
+    Project design:
+    <input type="file" name="image" accept="image/png, image/gif, image/jpeg, image/jpg"></input>
+  </label>
   <button type='submit'>Send message</button>
 </form>
 
 {{#if isSent}}
-  The message has been sent!
+  <div>The message has been sent!</div>
 {{/if}}
 
 {{#if isError}}
-  You can't leave fields empty!
+  <div>You can't leave fields empty!</div>
+{{/if}}
+
+{{#if fileName}}
+  <div>
+    <img src='/images/uploads/{{fileName}}' />
+  </div>
 {{/if}}

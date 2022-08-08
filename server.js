@@ -1,6 +1,7 @@
 const express = require('express');
 const hbs = require('express-handlebars');
 const path = require('path');
+var multer = require('multer');
 
 const app = express();
 
@@ -12,6 +13,18 @@ app.engine('hbs', hbs({ extname: 'hbs', layoutsDir: './layouts', defaultLayout: 
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+app.use('/images/uploads', express.static('images/uploads'));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'public/images/uploads');
+  },
+  filename: function (req, file, cb) {
+      cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -37,17 +50,13 @@ app.get('/history', (req, res) => {
   res.render('history');
 });
 
-app.post('/contact/send-message', (req, res) => {
-
+app.post('/contact/send-message', upload.single('image'), (req, res) => {
   const { author, sender, title, message } = req.body;
-
-  if(author && sender && title && message) {
-    res.render('contact', { isSent: true});
+  if(author && sender && title && message && req.file) {
+    res.render('contact', { isSent: true, fileName: req.file.originalname });
+  } else {
+    res.render('contact', { isError: true });
   }
-  else {
-    res.render('contact', { isError: true})
-  }
-
 });
 
 app.use((req, res) => {
